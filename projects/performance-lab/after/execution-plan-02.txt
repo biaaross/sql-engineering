@@ -1,0 +1,55 @@
+CREATE INDEX IX_orders_customer_status_date
+ON orders(customer_id, status, order_date);
+
+Performance Lab - Case 02
+Execution Plan: AFTER Optimization
+
+Optimized Query:
+
+SELECT
+c.id AS customer_id,
+c.name AS customer_name,
+o.id AS order_id,
+o.order_date,
+o.status
+FROM customers AS c
+INNER JOIN orders AS o
+ON c.id = o.customer_id
+WHERE o.status = 'completed'
+AND o.order_date >= '2025-01-01'
+AND o.order_date < '2026-01-01';
+
+Index:
+
+CREATE INDEX IX_orders_customer_status_date
+ON orders(customer_id, status, order_date);
+
+Analysis:
+
+* The YEAR(order_date) function was removed.
+* The date predicate was rewritten as a SARGable range condition.
+* A composite index was created on customer_id, status, and order_date.
+* customer_id supports the JOIN condition.
+* status supports the equality filter.
+* order_date supports the date range filter.
+* The composite index provides a more suitable access path for the JOIN and filtering conditions.
+* SQL Server may perform an Index Seek instead of scanning a large portion of the orders table.
+* Fewer rows are expected to be examined before the JOIN operation.
+
+Expected access pattern:
+
+* Index Seek on IX_orders_customer_status_date
+* Efficient filtering using customer_id, status, and order_date
+* JOIN with customers
+
+Expected performance characteristics:
+
+* Fewer rows examined
+* Lower logical reads
+* Lower CPU cost
+* Reduced JOIN processing
+* Better scalability as the orders table grows
+
+Note:
+This is a predicted execution-plan analysis.
+Actual execution-plan metrics must be collected from SQL Server.

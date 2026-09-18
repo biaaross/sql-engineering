@@ -1,0 +1,43 @@
+Performance Lab - Case 03
+Execution Plan: BEFORE Optimization
+
+Query:
+
+SELECT
+id,
+customer_id,
+status,
+order_date
+FROM orders
+WHERE status = 'completed'
+ORDER BY order_date DESC
+LIMIT 50 OFFSET 500000;
+
+Analysis:
+
+* The query uses OFFSET-based pagination.
+* OFFSET 500000 requires the database to process and skip a large number of rows before returning the requested 50 rows.
+* The cost of OFFSET pagination can increase as the requested page becomes deeper.
+* The query also requires ordering by order_date.
+* Without a suitable index, SQL Server may need to scan and/or sort a large number of rows.
+* Even with an index, a large OFFSET can still require the engine to walk past many qualifying index entries.
+
+Expected access pattern:
+
+* Scan or large index traversal
+* Filtering by status
+* Ordering by order_date
+* Skipping a large number of rows
+* Returning only 50 rows
+
+Expected performance characteristics:
+
+* High number of rows processed
+* Increased logical reads
+* Increased CPU cost
+* Increasing latency for deeper pages
+* Poor scalability for very large OFFSET values
+
+Note:
+This is a predicted execution-plan analysis.
+Actual execution-plan metrics must be collected from SQL Server.

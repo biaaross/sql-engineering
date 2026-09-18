@@ -1,0 +1,46 @@
+Performance Lab - Case 01
+Execution Plan: AFTER Optimization
+
+Optimized Query:
+
+SELECT
+id,
+customer_id,
+status,
+order_date
+FROM orders
+WHERE customer_id = 125000
+AND order_date >= '2025-01-01'
+AND order_date < '2026-01-01';
+
+Index:
+
+CREATE INDEX IX_orders_customer_date
+ON orders(customer_id, order_date);
+
+Analysis:
+
+* The YEAR(order_date) function was removed from the filtering condition.
+* The date condition was rewritten as a SARGable range predicate.
+* A composite index on (customer_id, order_date) was introduced.
+* customer_id is used as the first index key because it is an equality predicate.
+* order_date is used as the second key to efficiently restrict the date range.
+* The optimizer can potentially perform an Index Seek instead of scanning the table.
+* Fewer rows need to be examined.
+* Logical reads and CPU usage are expected to decrease.
+
+Expected access pattern:
+
+* Index Seek
+* Efficient range seek on order_date after matching customer_id
+
+Expected performance characteristics:
+
+* Fewer rows examined
+* Lower logical reads
+* Lower CPU cost
+* Better scalability as the orders table grows
+
+Note:
+This is a predicted execution-plan analysis.
+Actual execution-plan metrics must be collected from SQL Server.

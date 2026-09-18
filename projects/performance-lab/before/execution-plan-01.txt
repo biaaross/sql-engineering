@@ -1,0 +1,36 @@
+Performance Lab - Case 01
+Execution Plan: BEFORE Optimization
+
+Query:
+SELECT
+id,
+customer_id,
+status,
+order_date
+FROM orders
+WHERE customer_id = 125000
+AND YEAR(order_date) = 2025;
+
+Analysis:
+
+* The query filters by customer_id and YEAR(order_date).
+* YEAR(order_date) applies a function to the order_date column.
+* This makes the date predicate non-SARGable.
+* The optimizer may not be able to efficiently seek on order_date using a normal B-Tree index.
+* Without an appropriate index, SQL Server may perform a scan over a large portion of the orders table.
+* customer_id is an equality predicate and is a strong candidate for indexing.
+
+Expected access pattern:
+
+* Table/Index Scan
+* Filter operation for YEAR(order_date) = 2025
+
+Expected performance characteristics:
+
+* Large number of rows examined
+* Higher logical reads
+* Additional CPU cost caused by evaluating YEAR() for many rows
+
+Note:
+This is a predicted execution-plan analysis.
+Actual execution-plan metrics must be collected from SQL Server.

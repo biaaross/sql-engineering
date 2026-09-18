@@ -1,0 +1,10 @@
+SELECT
+    id,
+    customer_id,
+    status,
+    order_date
+FROM orders
+WHERE status = 'completed'
+  AND order_date < '2025-06-15'
+ORDER BY order_date DESC
+LIMIT 50;
